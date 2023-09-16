@@ -5,6 +5,7 @@
     <table class="table">
         <thead>
             <tr>
+                <th>Image</th>
                 <th>Product</th>
                 <th>Price</th>
                 <th>Quantity</th>
@@ -13,7 +14,11 @@
         <tbody>
             {% for item in cart_items %}
                 <tr>
-                    <td>{{ item.product.name }}</td>
+                    <td>
+
+                        <img class="card-img-top" style="width: 40px;" src="{{ item.product.photo.url }}" alt="Card image cap">
+                    </td>
+                    <td>{{ item.product.title }}</td>
                     <td>${{ item.product.price }}</td>
                     <td>{{ item.quantity }}</td>
                 </tr>
