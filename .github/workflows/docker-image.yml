@@ -1,0 +1,42 @@
+name: Build and Push Docker Image to AWS ECR
+
+on:
+  push:
+    branches:
+      - main  # Adjust this to your main branch name
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Change this to your AWS region
+
+      - name: Install AWS CLI
+        run: |
+          pip install --upgrade pip
+          pip install awscli
+
+      - name: Build and tag Docker image
+        run: |
+          # Build the Docker image (replace 'Dockerfile' with your Dockerfile's path)
+          docker build -t my-django-app -f Dockerfile .
+
+          # Tag the Docker image with ECR repository URI
+          docker tag my-django-app:latest 839507959694.dkr.ecr.us-east-1.amazonaws.com/ecomrepo:latest
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 839507959694.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push 839507959694.dkr.ecr.us-east-1.amazonaws.com/ecomrepo:latest
