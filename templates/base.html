@@ -37,7 +37,7 @@
               </ul>
              
                 {% if user.is_authenticated %}
-                <button class="btn btn-outline-success my-2 my-sm-0 bi bi-cart3" type="submit">Cart</button>
+                <a class="btn btn-outline-success my-2 my-sm-0 bi bi-cart3" href="{% url '' %}>Cart</a>
                 <a class="btn btn-outline-success my-2 my-sm-0 bi bi-cart3" href="{% url 'logout' %}">Logout</a>
                 
                 {% endif%}
