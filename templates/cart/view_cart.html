@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Your Cart</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+                <tr>
+                    <td>
+
+                        <img class="card-img-top" style="width: 40px;" src="{{ item.product.photo.url }}" alt="Card image cap">
+                    </td>
+                    <td>{{ item.product.title }}</td>
+                    <td>${{ item.product.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">Your cart is empty.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'cart:checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+{% endblock %}
