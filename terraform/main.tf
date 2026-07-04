@@ -70,6 +70,14 @@ resource "aws_instance" "web" {
 
   associate_public_ip_address = true
 
+  user_data = <<-EOF
+                #!/bin/bash
+                apt-get update -y
+                apt-get install -y docker.io
+                systemctl enable docker
+                systemctl start docker
+                usermod -aG docker ubuntu
+                EOF
   tags = {
 
     Name = "${var.project_name}-ec2"
