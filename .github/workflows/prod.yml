@@ -103,6 +103,8 @@ jobs:
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy Application
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
         run: |
           ansible-playbook ansible/playbook.yml \
             -i ansible/inventory.ini \
