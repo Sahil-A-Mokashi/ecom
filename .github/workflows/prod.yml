@@ -47,21 +47,19 @@ jobs:
           docker push ${{ steps.login-ecr.outputs.registry }}/network_assignment:prod-latest
           docker push ${{ steps.login-ecr.outputs.registry }}/network_assignment:prod-${{ github.sha }}
 
-      - name: Check if EC2 already exists
-        id: check_ec2
+      - name: Check if Security Group exists
+        id: check_sg
         run: |
-          INSTANCE=$(aws ec2 describe-instances \
-            --filters \
-            "Name=tag:Name,Values=network-assignment-ec2" \
-            "Name=instance-state-name,Values=pending,running,stopped,stopping" \
-            --query "Reservations[].Instances[].InstanceId" \
+          SG=$(aws ec2 describe-security-groups \
+            --filters "Name=group-name,Values=network-assignment-sg" \
+            --query "SecurityGroups[0].GroupId" \
             --output text)
 
-          if [ -z "$INSTANCE" ] || [ "$INSTANCE" = "None" ]; then
+          if [ "$SG" = "None" ] || [ -z "$SG" ]; then
             echo "exists=false" >> $GITHUB_OUTPUT
           else
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Infrastructure already exists. Skipping Terraform."
+            echo "Security Group exists: $SG"
           fi
 
       - name: Setup Terraform
