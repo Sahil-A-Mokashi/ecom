@@ -41,3 +41,50 @@ jobs:
         run: |
           docker tag ecom-app:latest ${{ steps.login-ecr.outputs.registry }}/network_assignment:prod-latest
           docker tag ecom-app:latest ${{ steps.login-ecr.outputs.registry }}/network_assignment:prod-${{ github.sha }}
+
+      - name: Push Docker Images
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/network_assignment:prod-latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/network_assignment:prod-${{ github.sha }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Create SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Create Inventory
+        run: |
+          echo "[web]" > ansible/inventory.ini
+          echo "${{ secrets.EC2_HOST }}" >> ansible/inventory.ini
+
+      - name: Deploy Application
+        run: |
+          ansible-playbook ansible/playbook.yml \
+            -i ansible/inventory.ini \
+            --private-key ~/.ssh/id_rsa \
+            -u ubuntu \
+            -e aws_region="${{ secrets.AWS_REGION }}" \
+            -e ecr_repository="${{ secrets.ECR_REPOSITORY }}" \
+            -e ecr_registry="${{ steps.login-ecr.outputs.registry }}" \
+            -e image_tag="prod-latest"
