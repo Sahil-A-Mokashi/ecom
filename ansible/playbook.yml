@@ -27,12 +27,10 @@
         docker pull {{ ecr_repository }}:{{ image_tag }}
 
     - name: Stop existing container
-      shell: docker stop {{ container_name }}
-      ignore_errors: yes
+      shell: docker stop {{ container_name }} || true
 
     - name: Remove existing container
-      shell: docker rm {{ container_name }}
-      ignore_errors: yes
+      shell: docker rm {{ container_name }} || true
 
     - name: Run latest container
       shell: |
