@@ -97,6 +97,11 @@ jobs:
           echo "[web]" > ansible/inventory.ini
           echo "${{ secrets.EC2_HOST }}" >> ansible/inventory.ini
 
+      - name: Add EC2 Host to Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
       - name: Deploy Application
         run: |
           ansible-playbook ansible/playbook.yml \
