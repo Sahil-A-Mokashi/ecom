@@ -13,13 +13,21 @@ jobs:
         working-directory: terraform
 
     steps:
+
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Show AWS Identity
         run: |
           aws sts get-caller-identity
           aws configure get region
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Show Repository Structure
+        run: |
+          pwd
+          ls -la
+          find . -maxdepth 2 -type d
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
