@@ -47,18 +47,37 @@ jobs:
           docker push ${{ steps.login-ecr.outputs.registry }}/network_assignment:prod-latest
           docker push ${{ steps.login-ecr.outputs.registry }}/network_assignment:prod-${{ github.sha }}
 
+      - name: Check if Security Group exists
+        id: check_sg
+        run: |
+          SG=$(aws ec2 describe-security-groups \
+            --filters "Name=group-name,Values=network-assignment-sg" \
+            --query "SecurityGroups[0].GroupId" \
+            --output text)
+
+          if [ "$SG" = "None" ] || [ -z "$SG" ]; then
+            echo "exists=false" >> $GITHUB_OUTPUT
+          else
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Security Group exists: $SG"
+          fi
+
       - name: Setup Terraform
+        if: steps.check_ec2.outputs.exists == 'false'
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
+        if: steps.check_ec2.outputs.exists == 'false'
         working-directory: terraform
         run: terraform init
 
       - name: Terraform Validate
+        if: steps.check_ec2.outputs.exists == 'false'
         working-directory: terraform
         run: terraform validate
 
       - name: Terraform Apply
+        if: steps.check_ec2.outputs.exists == 'false'
         working-directory: terraform
         run: terraform apply -auto-approve
 
