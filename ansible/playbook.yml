@@ -1,0 +1,43 @@
+---
+- name: Deploy Django Application
+  hosts: web
+  become: yes
+
+  vars:
+    container_name: network_assignment
+
+  tasks:
+
+    - name: Install AWS CLI
+      shell: |
+        if ! command -v aws >/dev/null 2>&1; then
+          apt-get update
+          apt-get install -y unzip curl
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -o awscliv2.zip
+          ./aws/install
+        fi
+
+    - name: Login to Amazon ECR
+      shell: |
+        aws ecr get-login-password --region {{ aws_region }} | docker login --username AWS --password-stdin {{ ecr_registry }}
+
+    - name: Pull latest Docker image
+      shell: |
+        docker pull {{ ecr_repository }}:{{ image_tag }}
+
+    - name: Stop existing container
+      shell: docker stop {{ container_name }}
+      ignore_errors: yes
+
+    - name: Remove existing container
+      shell: docker rm {{ container_name }}
+      ignore_errors: yes
+
+    - name: Run latest container
+      shell: |
+        docker run -d \
+        --name {{ container_name }} \
+        --restart unless-stopped \
+        -p 80:8787 \
+        {{ ecr_repository }}:{{ image_tag }}
