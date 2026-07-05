@@ -29,10 +29,7 @@ jobs:
         run: |
           aws ec2 describe-key-pairs --region eu-north-1
 
-      - name: Show AWS Identity
-        run: |
-          aws sts get-caller-identity
-          aws configure get region
+         
 
       - name: Show Repository Structure
         run: |
