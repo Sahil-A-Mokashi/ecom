@@ -1,3 +1,15 @@
+# 🌐 Live Demo
+
+The application has been successfully deployed to Amazon EC2 using the CI/CD pipeline.
+
+**Live URL:**
+
+http://13.62.58.236
+
+> The application is automatically updated whenever code is pushed to the `prod` branch through the GitHub Actions → Amazon ECR → Ansible deployment pipeline.
+
+
+
 # E-Commerce CI/CD Pipeline on AWS
 
 ## Project Overview
